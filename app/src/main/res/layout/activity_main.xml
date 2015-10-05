@@ -14,8 +14,8 @@
 
     <TextView
         android:text="@string/hello_world"
-        android:textSize="24sp"
-        android:id="@+id/hello"
+        android:textSize="12sp"
+        android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -27,7 +27,8 @@
             android:layout_below="@+id/hello"
             android:id="@+id/map"
             tools:context="com.armand17.runandride.MainActivityActivity"
-            android:name="com.google.android.gms.maps.SupportMapFragment" />
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            tools:layout="@layout/abc_action_bar_title_item" />
 
         </LinearLayout>
     <LinearLayout
@@ -43,6 +44,8 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
+                android:textOff="Mulai"
+                android:textOn="Stop"
                 android:id="@+id/mulai" />
 
         </LinearLayout>
@@ -55,21 +58,24 @@
 
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ToggleButton
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="New Button"
+                android:textOn="Lari"
+                android:textOff="Bersepeda"
+                android:id="@+id/setKegiatan"/>
 
             <Button
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="New Button"
-                android:id="@+id/button"/>
-
-            <Button
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="New Button"
-                android:id="@+id/button2"/>
+                android:text="Jarak"
+                android:id="@+id/setJarak"/>
 
         </LinearLayout>
 

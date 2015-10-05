@@ -1,11 +1,13 @@
 package com.armand17.runandride;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -15,17 +17,26 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+
+import com.facebook.FacebookSdk;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    static final LatLng JOGJA = new LatLng(-7.782940, 110.367073);
-    static final LatLng XT_SQUARE = new LatLng(-7.816706, 110.386314);
     private GoogleApiClient googleApiClient;
     private Location location;
     private double lat, lng;
     Marker mMarker;
+    static final LatLng JOGJA = new LatLng(-7.782940, 110.367073);
+    static final LatLng XT_SQUARE = new LatLng(-7.816706, 110.386314);
+    ArrayList<LatLng> points;
 
 
     @Override
@@ -33,6 +44,10 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setUpMapIfNeeded();
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        points = new ArrayList<LatLng>();
+        SupportMapFragment fm = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mMap = fm.getMap();
     }
 
     @Override
@@ -76,27 +91,37 @@ public class MainActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+
 
         mMap.addMarker(new MarkerOptions().position(JOGJA).title("Jogja Istimewa"));
-        mMap.addMarker(new MarkerOptions().position(XT_SQUARE).title("XT-Square Jogja").snippet("Biangnya dangdut")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_play_dark)));
+        mMap.addMarker(new MarkerOptions().position(XT_SQUARE).title("XT-Square Jogja").snippet("Biangnya dangdut"));
 
-        //mMap.setOnMyLocationChangeListener(myLocationChangeListener);
+        mMap.setOnMyLocationChangeListener(myLocationChangeListener);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(JOGJA, 12));
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
         mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
 
+
     }
+
 
     private GoogleMap.OnMyLocationChangeListener myLocationChangeListener = new GoogleMap.OnMyLocationChangeListener() {
         @Override
         public void onMyLocationChange(Location location) {
+            TextView text = (TextView) findViewById(R.id.title);
             LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
+            PolylineOptions polylineOptions = new PolylineOptions();
+            polylineOptions.color(Color.CYAN);
+            polylineOptions.width(3);
+            points.add(loc);
+            polylineOptions.addAll(points);
+            mMap.addPolyline(polylineOptions);
             mMarker = mMap.addMarker(new MarkerOptions().position(loc));
+            text.setText("Lat = " +loc.latitude+ "Long = " +loc.longitude);
             if (mMap != null){
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 16.0f));
+
             }
         }
     };
