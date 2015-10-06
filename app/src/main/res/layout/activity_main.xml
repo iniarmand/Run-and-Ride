@@ -23,8 +23,6 @@
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentBottom="true"
-            android:layout_below="@+id/hello"
             android:id="@+id/map"
             tools:context="com.armand17.runandride.MainActivityActivity"
             android:name="com.google.android.gms.maps.SupportMapFragment"
@@ -64,8 +62,7 @@
             <ToggleButton
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="New Button"
+                android:layout_height="48dp"
                 android:textOn="Lari"
                 android:textOff="Bersepeda"
                 android:id="@+id/setKegiatan"/>

@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -27,7 +28,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.util.ArrayList;
 
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private GoogleApiClient googleApiClient;
@@ -47,6 +48,7 @@ public class MainActivity extends FragmentActivity {
         FacebookSdk.sdkInitialize(getApplicationContext());
         points = new ArrayList<LatLng>();
         SupportMapFragment fm = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        fm.getMapAsync(this);
         mMap = fm.getMap();
     }
 
@@ -118,9 +120,11 @@ public class MainActivity extends FragmentActivity {
             polylineOptions.addAll(points);
             mMap.addPolyline(polylineOptions);
             mMarker = mMap.addMarker(new MarkerOptions().position(loc));
-            text.setText("Lat = " +loc.latitude+ "Long = " +loc.longitude);
+            text.setText("Lat = " +loc.latitude+ " Long = " +loc.longitude);
             if (mMap != null){
+
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 16.0f));
+
 
             }
         }
@@ -145,5 +149,10 @@ public class MainActivity extends FragmentActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
     }
 }
