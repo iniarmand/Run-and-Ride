@@ -1,10 +1,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="5dp"
-    android:orientation="vertical"
-    tools:context=".MainActivity">
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:padding="5dp"
+              tools:context=".MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,39 +12,61 @@
         android:layout_weight="7"
         android:orientation="vertical">
 
-    <TextView
-        android:text="@string/hello_world"
-        android:textSize="12sp"
-        android:id="@+id/title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
+        <TextView
+            android:id="@+id/title"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/map"
-            tools:context="com.armand17.runandride.MainActivityActivity"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
-            tools:layout="@layout/abc_action_bar_title_item" />
+            android:layout_height="wrap_content"
+            android:text="Waiting location info..."
+            android:textSize="18sp"/>
 
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <ScrollView
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/array_loc"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"/>
+            </ScrollView>
+
+            <fragment
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                tools:context="com.armand17.runandride.MainActivityActivity"
+                tools:layout="@layout/abc_action_bar_title_item"/>
         </LinearLayout>
+
+
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@color/primaryColorLight">
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
 
             <ToggleButton
+                android:id="@+id/btnStart"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:textOff="Mulai"
                 android:textOn="Stop"
-                android:id="@+id/mulai" />
+                />
 
         </LinearLayout>
 
@@ -59,20 +81,26 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <ToggleButton
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="48dp"
-                android:textOn="Lari"
-                android:textOff="Bersepeda"
-                android:id="@+id/setKegiatan"/>
-
             <Button
+                android:id="@+id/btnKegiatan"
                 android:layout_width="0dp"
+                android:layout_height="32dp"
                 android:layout_weight="1"
-                android:layout_height="wrap_content"
+                android:text="Bersepeda / Lari"
+                android:gravity="center"
+                android:layout_margin="2dp"
+                android:background="@color/primaryColor"/>
+
+
+            <TextView
+                android:id="@+id/textDistance"
+                android:layout_width="0dp"
+                android:layout_height="32dp"
+                android:layout_weight="1"
                 android:text="Jarak"
-                android:id="@+id/setJarak"/>
+                android:gravity="center"
+                android:layout_margin="2dp"
+                android:background="@color/primaryColor"/>
 
         </LinearLayout>
 
@@ -80,22 +108,27 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
 
-        <Button
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="New Button"
-            android:id="@+id/button3" />
+            <TextView
+                android:id="@+id/textCallories"
+                android:layout_width="0dp"
+                android:layout_height="32dp"
+                android:layout_weight="1"
+                android:text="Callories"
+                android:gravity="center"
+                android:layout_margin="2dp"
+                android:background="@color/primaryColor"/>
 
-        <Button
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="New Button"
-            android:id="@+id/button4" />
+            <TextView
+                android:id="@+id/textTime"
+                android:layout_width="0dp"
+                android:layout_height="32dp"
+                android:layout_weight="1"
+                android:text="Time"
+                android:gravity="center"
+                android:layout_margin="2dp"
+                android:background="@color/primaryColor"/>
 
-            </LinearLayout>
-
+        </LinearLayout>
 
 
     </LinearLayout>

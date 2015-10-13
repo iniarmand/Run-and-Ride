@@ -9,40 +9,56 @@ import android.database.sqlite.SQLiteOpenHelper;
 /**
  * Created by armand17 on 06/10/15.
  */
-public class LocalDB extends SQLiteOpenHelper {
+public class LocalDBHandler extends SQLiteOpenHelper {
 
-    /** Database name */
+    /**
+     * Database name
+     */
     private static String DBNAME = "DatabaseTracking";
 
-    /** Version number of the database */
+    /**
+     * Version number of the database
+     */
     private static int VERSION = 1;
 
-    /** Field 1 of the table locations, which is the primary key */
+    /**
+     * Field 1 of the table locations, which is the primary key
+     */
     public static final String FIELD_ROW_ID = "_id";
 
     public static final String FIELD_USER_ID = "user_id";
 
-    /** Field 2 of the table locations, stores the latitude */
+    /**
+     * Field 2 of the table locations, stores the latitude
+     */
     public static final String FIELD_LAT = "lat";
 
-    /** Field 3 of the table locations, stores the longitude*/
+    /**
+     * Field 3 of the table locations, stores the longitude
+     */
     public static final String FIELD_LNG = "lng";
 
-    /** Field 4 of the table locations, stores the zoom level of map*/
+    /**
+     * Field 4 of the table locations, stores the zoom level of map
+     */
     public static final String FIELD_ZOOM = "zoom";
 
     public static final String FIELD_TIME = "time";
 
     public static final String FIELD_SESSION_NAME = "session";
 
-    /** A constant, stores the the table name */
+    /**
+     * A constant, stores the the table name
+     */
     private static final String DATABASE_TABLE = "tracking";
 
-    /** An instance variable for SQLiteDatabase */
+    /**
+     * An instance variable for SQLiteDatabase
+     */
     private SQLiteDatabase mDB;
 
 
-    public LocalDB(Context context) {
+    public LocalDBHandler(Context context) {
         super(context, DBNAME, null, VERSION);
         this.mDB = getWritableDatabase();
     }
@@ -61,19 +77,21 @@ public class LocalDB extends SQLiteOpenHelper {
         db.execSQL(sql);
     }
 
-    /** insert new point location */
-    public long insert(ContentValues contentValues){
+    /**
+     * insert new point location
+     */
+    public long insert(ContentValues contentValues) {
         long rowID = mDB.insert(DATABASE_TABLE, null, contentValues);
         return rowID;
     }
 
-    public int del(){
+    public int del() {
         int cnt = mDB.delete(DATABASE_TABLE, null, null);
         return cnt;
     }
 
-    public Cursor getAllLocations(){
-        return  mDB.query(DATABASE_TABLE, new String[] { FIELD_ROW_ID, FIELD_LAT, FIELD_LNG, FIELD_ZOOM, FIELD_TIME, FIELD_SESSION_NAME} , null, null, null, null, null);
+    public Cursor getAllLocations() {
+        return mDB.query(DATABASE_TABLE, new String[]{FIELD_ROW_ID, FIELD_LAT, FIELD_LNG, FIELD_ZOOM, FIELD_TIME, FIELD_SESSION_NAME}, null, null, null, null, null);
 
     }
 

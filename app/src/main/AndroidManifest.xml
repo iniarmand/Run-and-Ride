@@ -20,7 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
         <activity android:name=".MainActivity"
-                  android:label="Run and Ride">
+                  android:label="Run &amp; Ride">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -36,7 +36,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDkohT7VBOl4bP2wWMWPe96y-hGrDjVtp8" />
+            android:value="@string/google_maps_key" />
 
     </application>
 

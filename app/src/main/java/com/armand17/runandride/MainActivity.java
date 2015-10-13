@@ -1,137 +1,357 @@
 package com.armand17.runandride;
 
-import android.content.Intent;
+
+import android.app.LoaderManager;
+import android.content.Loader;
+import android.database.Cursor;
+
 import android.graphics.Color;
 import android.location.Location;
-import android.support.v4.app.FragmentActivity;
+
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
+import android.view.View;
 
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.PopupMenu;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationListener;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
-
-
-import com.facebook.FacebookSdk;
-import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
+import com.facebook.FacebookSdk;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
+public class MainActivity extends FragmentActivity implements OnMapReadyCallback,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LoaderManager.LoaderCallbacks<Cursor>,
+        LocationListener {
 
-public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
+    private static final long INTERVAL = 1000 * 5; //5dtk
+    private static final long FASTEST_INTERVAL = 1000 * 3; //3dtk
 
-    private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private GoogleMap googleMap; // Might be null if Google Play services APK is not available.
     private GoogleApiClient googleApiClient;
-    private Location location;
-    private double lat, lng;
+    private Location mLocation;
+    private LocationRequest mLocationRequest;
+    private boolean statusSesi;
+    double lat, lng;
+    double newlat,newlng;
     Marker mMarker;
+    LatLng coordinate;
+    LatLng changedLoc;
     static final LatLng JOGJA = new LatLng(-7.782940, 110.367073);
     static final LatLng XT_SQUARE = new LatLng(-7.816706, 110.386314);
-    ArrayList<LatLng> points;
+    ArrayList<String> record;
+    ArrayList<LatLng> point;
+    protected String mLastUpdateTime;
+    ToggleButton btnStart;
+    Button btnExcercise;
+    TextView textDistance;
+    TextView textTime;
+    TextView textCallories;
+    TextView array_loc;
+    String session_type;
+    String newpoint;
+
+    String coorLat,coorLong;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        setUpMapIfNeeded();
         FacebookSdk.sdkInitialize(getApplicationContext());
-        points = new ArrayList<LatLng>();
-        SupportMapFragment fm = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        fm.getMapAsync(this);
-        mMap = fm.getMap();
+        statusSesi = false;
+
+        if (!isGooglePlayServiceAvailable()){
+            finish();
+        }
+        createLocationRequest();
+        setContentView(R.layout.activity_main);
+
+        //inisialisasi UI
+        btnStart = (ToggleButton) findViewById(R.id.btnStart);
+        btnExcercise = (Button) findViewById(R.id.btnKegiatan);
+        point = new ArrayList<LatLng>();
+
+        textDistance = (TextView) findViewById(R.id.textDistance);
+        textTime = (TextView) findViewById(R.id.time);
+        textCallories = (TextView) findViewById(R.id.textCallories);
+        array_loc = (TextView)findViewById(R.id.array_loc);
+        // Try to obtain the map from the SupportMapFragment.
+        SupportMapFragment mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
+        mapFragment.getMapAsync(this);
+
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+
+        googleApiClient.connect();
+
+        //Action UI button
+        btnExcercise.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu popup = new PopupMenu(MainActivity.this, btnExcercise);
+
+                popup.getMenuInflater().inflate(R.menu.pop_up, popup.getMenu());
+
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    public boolean onMenuItemClick(MenuItem item) {
+                        btnExcercise.setText(item.getTitle());
+                        Toast.makeText(MainActivity.this, "You Choose: " + item.getTitle(), Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+                });
+                popup.show();
+            }
+        });
+
+        btnStart.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked)
+                    startSession();
+                else stopSession();
+            }
+        });
+
+    }
+
+    private boolean isGooglePlayServiceAvailable() {
+        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (ConnectionResult.SUCCESS == status){
+            return true;
+        } else {
+            GooglePlayServicesUtil.getErrorDialog(status, this, 0).show();
+            return false;
+        }
+    }
+
+    public void startSession() {
+        startLocationUpdate();
+        statusSesi = true;
+        googleMap.clear();
+        coordinate = new LatLng(mLocation.getLatitude(),mLocation.getLongitude());
+        mMarker = googleMap.addMarker(new MarkerOptions().position(coordinate));
+        
+
+    }
+
+    private void stopSession() {
+        statusSesi = false;
+        stopLocationUpdate();
+    }
+
+    protected void startLocationUpdate() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, mLocationRequest, this);
+    }
+
+    protected void stopLocationUpdate() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+    }
+
+    private void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(INTERVAL);
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setSmallestDisplacement(0);
+    }
+
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        googleApiClient.connect();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        setUpMapIfNeeded();
+        if (googleApiClient.isConnected())
+        startLocationUpdate();
     }
 
-    /**
-     * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
-     * installed) and the map has not already been instantiated.. This will ensure that we only ever
-     * call {@link #setUpMap()} once when {@link #mMap} is not null.
-     * <p/>
-     * If it isn't installed {@link SupportMapFragment} (and
-     * {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to
-     * install/update the Google Play services APK on their device.
-     * <p/>
-     * A user can return to this FragmentActivity after following the prompt and correctly
-     * installing/updating/enabling the Google Play services. Since the FragmentActivity may not
-     * have been completely destroyed during this process (it is likely that it would only be
-     * stopped or paused), {@link #onCreate(Bundle)} may not be called again so we should call this
-     * method in {@link #onResume()} to guarantee that it will be called.
-     */
-    private void setUpMapIfNeeded() {
-        // Do a null check to confirm that we have not already instantiated the map.
-        if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
-            // Check if we were successful in obtaining the map.
-            if (mMap != null) {
-                setUpMap();
-            }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (googleApiClient.isConnected()){
+            googleApiClient.disconnect();
         }
     }
 
-    /**
-     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
-     * just add a marker near Africa.
-     * <p/>
-     * This should only be called once and when we are sure that {@link #mMap} is not null.
-     */
-    private void setUpMap() {
+    protected void onPause() {
+        super.onPause();
+    }
 
 
-        mMap.addMarker(new MarkerOptions().position(JOGJA).title("Jogja Istimewa"));
-        mMap.addMarker(new MarkerOptions().position(XT_SQUARE).title("XT-Square Jogja").snippet("Biangnya dangdut"));
+    private String getDistance(LatLng startPoint, LatLng endPoint) {
+        Location lo = new  Location("one");
+        lo.setLatitude(startPoint.latitude);
+        lo.setLongitude(startPoint.longitude);
 
-        mMap.setOnMyLocationChangeListener(myLocationChangeListener);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(JOGJA, 12));
-        mMap.setMyLocationEnabled(true);
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        mMap.getUiSettings().setCompassEnabled(true);
-        mMap.getUiSettings().setZoomControlsEnabled(true);
-        mMap.getUiSettings().setZoomGesturesEnabled(false);
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+        Location lo2 = new Location("two");
+        lo2.setLatitude(endPoint.latitude);
+        lo2.setLongitude(endPoint.longitude);
+
+        float distance = lo.distanceTo(lo2);
+        String dist = distance + " m";
+
+        if (distance > 1000.0f){
+            distance = distance/1000.0f;
+            dist = distance + " KM";
+        }
+
+        return dist;
+    }
+
+
+
+    @Override
+    public void onMapReady(GoogleMap mMap) {
+
+        googleMap = mMap;
+        /**
+         * Setup Maps GUI
+         * */
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(JOGJA, 12));
+        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+        googleMap.getUiSettings().setCompassEnabled(true);
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
+        googleMap.getUiSettings().setZoomGesturesEnabled(false);
+        googleMap.setTrafficEnabled(true);
+
+        /**
+         * Get Current Location
+         */
+        googleMap.setMyLocationEnabled(true);
+        googleMap.setTrafficEnabled(true);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
+
+
+    // Inisialisasi google map, implementasi class
+    @Override
+    public void onConnected(Bundle bundle) {
+
+        if (statusSesi){
+            startLocationUpdate();
+        } else {
+            stopLocationUpdate();
+        }
+
+        if (mLocation == null) {
+            // get last location device
+            mLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+            if (googleMap != null) {
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()), 13));
+                lat = mLocation.getLatitude();
+                lng = mLocation.getLongitude();
+                LatLng start = new LatLng(lat,lng);
+                PolylineOptions polylineOptions = new PolylineOptions();
+                polylineOptions.color(Color.CYAN);
+                polylineOptions.width(3);
+                polylineOptions.add(start);
+
+                Toast.makeText(this, "Lokasi kamu saat ini :')", Toast.LENGTH_LONG).show();
+            }
+        } else{
+            if (googleMap != null) {
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()), 13));
+                lat = mLocation.getLatitude();
+                lng = mLocation.getLongitude();
+                LatLng start = new LatLng(lat,lng);
+                PolylineOptions polylineOptions = new PolylineOptions();
+                polylineOptions.color(Color.CYAN);
+                polylineOptions.width(3);
+                polylineOptions.add(start);
+
+                Toast.makeText(this, "Lokasi kamu saat ini ')", Toast.LENGTH_LONG).show();
+            }
+        }
+
+    }
+
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mLocation = location;
+
+
+        // loc.add(coordinate);
+//        lat = mLocation.getLatitude();
+//        lng = mLocation.getLongitude();
+        changedLoc = new LatLng(mLocation.getLatitude(),mLocation.getLongitude());
+//        newpoint = coordinate.toString();
+        session_type = btnExcercise.getText().toString();
+
+        PolylineOptions polylineOptions = new PolylineOptions();
+        polylineOptions.color(Color.CYAN);
+        polylineOptions.width(3);
+        point.add(changedLoc);
+        polylineOptions.addAll(point);
+        googleMap.addPolyline(polylineOptions);
+
+        array_loc.setText("Session: " + session_type + "\nLocation " + point);
+
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(changedLoc));
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(17.0f));
+        //mMarker.setPosition(coordinate);
 
 
     }
 
 
-    private GoogleMap.OnMyLocationChangeListener myLocationChangeListener = new GoogleMap.OnMyLocationChangeListener() {
-        @Override
-        public void onMyLocationChange(Location location) {
-            TextView text = (TextView) findViewById(R.id.title);
-            LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
-            PolylineOptions polylineOptions = new PolylineOptions();
-            polylineOptions.color(Color.CYAN);
-            polylineOptions.width(3);
-            points.add(loc);
-            polylineOptions.addAll(points);
-            mMap.addPolyline(polylineOptions);
-            mMarker = mMap.addMarker(new MarkerOptions().position(loc));
-            text.setText("Lat = " +loc.latitude+ " Long = " +loc.longitude);
-            if (mMap != null){
-
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 16.0f));
-
-
-            }
-        }
-    };
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -154,8 +374,4 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-
-    }
 }
