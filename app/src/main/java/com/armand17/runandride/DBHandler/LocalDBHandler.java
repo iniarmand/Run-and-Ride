@@ -24,7 +24,7 @@ public class LocalDBHandler extends SQLiteOpenHelper {
     /**
      * Field 1 of the table locations, which is the primary key
      */
-    public static final String FIELD_ROW_ID = "_id";
+    public static final String FIELD_ROW_ID = "id";
 
     public static final String FIELD_USER_ID = "user_id";
 

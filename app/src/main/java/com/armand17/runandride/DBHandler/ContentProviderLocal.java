@@ -6,7 +6,7 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.annotation.Nullable;
+
 
 import java.sql.SQLException;
 
@@ -36,7 +36,6 @@ public class ContentProviderLocal extends ContentProvider {
         return false;
     }
 
-    @Nullable
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         if (uriMatcher.match(uri)==LOCATIONS){
@@ -45,13 +44,11 @@ public class ContentProviderLocal extends ContentProvider {
         return null;
     }
 
-    @Nullable
     @Override
     public String getType(Uri uri) {
         return null;
     }
 
-    @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         long rowID = mLocalDBHandler.insert(values);

@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.CompoundButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -34,6 +35,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
@@ -57,10 +59,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationRequest mLocationRequest;
     private boolean statusSesi;
     double lat, lng;
+    long time;
     double newlat,newlng;
     Marker mMarker;
-    LatLng coordinate;
-    LatLng changedLoc;
+    Marker startMarker, endMarker;
+    LatLng loc, startLoc;
     static final LatLng JOGJA = new LatLng(-7.782940, 110.367073);
     static final LatLng XT_SQUARE = new LatLng(-7.816706, 110.386314);
     ArrayList<String> record;
@@ -74,8 +77,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     TextView array_loc;
     String session_type;
     String newpoint;
-
-    String coorLat,coorLong;
 
 
     @Override
@@ -95,10 +96,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         btnExcercise = (Button) findViewById(R.id.btnKegiatan);
         point = new ArrayList<LatLng>();
 
+
         textDistance = (TextView) findViewById(R.id.textDistance);
         textTime = (TextView) findViewById(R.id.time);
         textCallories = (TextView) findViewById(R.id.textCallories);
         array_loc = (TextView)findViewById(R.id.array_loc);
+
         // Try to obtain the map from the SupportMapFragment.
         SupportMapFragment mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
         mapFragment.getMapAsync(this);
@@ -142,7 +145,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private boolean isGooglePlayServiceAvailable() {
-        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        int status = GooglePlayServicesUtil
+                .isGooglePlayServicesAvailable(this);
         if (ConnectionResult.SUCCESS == status){
             return true;
         } else {
@@ -152,13 +156,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void startSession() {
-        startLocationUpdate();
-        statusSesi = true;
         googleMap.clear();
-        coordinate = new LatLng(mLocation.getLatitude(),mLocation.getLongitude());
-        mMarker = googleMap.addMarker(new MarkerOptions().position(coordinate));
-        
+        point.clear();
 
+        startLocationUpdate();
+//        time = System.currentTimeMillis()/1000;
+//        String timeString = time.toString();
+//        textTime.setText(""+time);
+        statusSesi = true;
     }
 
     private void stopSession() {
@@ -166,12 +171,20 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         stopLocationUpdate();
     }
 
+
+
+
     protected void startLocationUpdate() {
-        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, mLocationRequest, this);
+        LocationServices
+                .FusedLocationApi
+                .requestLocationUpdates(
+                        googleApiClient, mLocationRequest, this);
     }
 
     protected void stopLocationUpdate() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+        LocationServices
+                .FusedLocationApi
+                .removeLocationUpdates(googleApiClient, this);
     }
 
     private void createLocationRequest() {
@@ -207,29 +220,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     protected void onPause() {
         super.onPause();
-    }
-
-
-    private String getDistance(LatLng startPoint, LatLng endPoint) {
-        Location lo = new  Location("one");
-        lo.setLatitude(startPoint.latitude);
-        lo.setLongitude(startPoint.longitude);
-
-        Location lo2 = new Location("two");
-        lo2.setLatitude(endPoint.latitude);
-        lo2.setLongitude(endPoint.longitude);
-
-        float distance = lo.distanceTo(lo2);
-        String dist = distance + " m";
-
-        if (distance > 1000.0f){
-            distance = distance/1000.0f;
-            dist = distance + " KM";
+        if (googleApiClient.isConnected()) {
+            startLocationUpdate();
         }
-
-        return dist;
     }
-
 
 
     @Override
@@ -239,7 +233,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         /**
          * Setup Maps GUI
          * */
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(JOGJA, 12));
         googleMap.getUiSettings().setMyLocationButtonEnabled(true);
         googleMap.getUiSettings().setCompassEnabled(true);
         googleMap.getUiSettings().setZoomControlsEnabled(true);
@@ -286,11 +279,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()), 13));
                 lat = mLocation.getLatitude();
                 lng = mLocation.getLongitude();
-                LatLng start = new LatLng(lat,lng);
-                PolylineOptions polylineOptions = new PolylineOptions();
-                polylineOptions.color(Color.CYAN);
-                polylineOptions.width(3);
-                polylineOptions.add(start);
 
                 Toast.makeText(this, "Lokasi kamu saat ini :')", Toast.LENGTH_LONG).show();
             }
@@ -299,18 +287,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()), 13));
                 lat = mLocation.getLatitude();
                 lng = mLocation.getLongitude();
-                LatLng start = new LatLng(lat,lng);
-                PolylineOptions polylineOptions = new PolylineOptions();
-                polylineOptions.color(Color.CYAN);
-                polylineOptions.width(3);
-                polylineOptions.add(start);
 
                 Toast.makeText(this, "Lokasi kamu saat ini ')", Toast.LENGTH_LONG).show();
             }
         }
 
     }
-
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -326,27 +308,35 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
         mLocation = location;
+        if (endMarker!=null){
+            endMarker.remove();
+        }
 
-
-        // loc.add(coordinate);
-//        lat = mLocation.getLatitude();
-//        lng = mLocation.getLongitude();
-        changedLoc = new LatLng(mLocation.getLatitude(),mLocation.getLongitude());
-//        newpoint = coordinate.toString();
+        TextView title = (TextView) findViewById(R.id.title);
+        lat = mLocation.getLatitude();
+        lng = mLocation.getLongitude();
+        loc = new LatLng(lat,lng);
+        newpoint = loc.toString();
         session_type = btnExcercise.getText().toString();
 
         PolylineOptions polylineOptions = new PolylineOptions();
         polylineOptions.color(Color.CYAN);
         polylineOptions.width(3);
-        point.add(changedLoc);
+        point.add(loc);
         polylineOptions.addAll(point);
         googleMap.addPolyline(polylineOptions);
+        startLoc = point.get(0);
+        if (point.size() == 1){
+            startMarker = googleMap.addMarker(new MarkerOptions().position(startLoc).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        } else {
+            endMarker = googleMap.addMarker(new MarkerOptions().position(loc).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+        }
+
 
         array_loc.setText("Session: " + session_type + "\nLocation " + point);
-
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(changedLoc));
+        title.setText("Lat = " + loc.latitude + " Long = " +loc.longitude);
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(loc));
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(17.0f));
-        //mMarker.setPosition(coordinate);
 
 
     }
@@ -373,5 +363,26 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         return super.onOptionsItemSelected(item);
     }
+
+    private float getDistance(LatLng startPoint, LatLng endPoint) {
+        Location lo = new  Location("one");
+        lo.setLatitude(startPoint.latitude);
+        lo.setLongitude(startPoint.longitude);
+
+        Location lo2 = new Location("two");
+        lo2.setLatitude(endPoint.latitude);
+        lo2.setLongitude(endPoint.longitude);
+
+        float distance = lo.distanceTo(lo2);
+//        String dist = distance + " m";
+//
+//        if (distance > 1000.0f){
+//            distance = distance/1000.0f;
+//            dist = distance + " KM";
+//        }
+
+        return distance;
+    }
+
 
 }

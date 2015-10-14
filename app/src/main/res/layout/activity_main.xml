@@ -87,6 +87,9 @@
                 android:layout_height="32dp"
                 android:layout_weight="1"
                 android:text="Bersepeda / Lari"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:textColor="@color/primaryTextColor"
                 android:gravity="center"
                 android:layout_margin="2dp"
                 android:background="@color/primaryColor"/>
@@ -98,6 +101,10 @@
                 android:layout_height="32dp"
                 android:layout_weight="1"
                 android:text="Jarak"
+                android:textAllCaps="true"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:textColor="@color/primaryTextColor"
                 android:gravity="center"
                 android:layout_margin="2dp"
                 android:background="@color/primaryColor"/>
@@ -114,6 +121,10 @@
                 android:layout_height="32dp"
                 android:layout_weight="1"
                 android:text="Callories"
+                android:textAllCaps="true"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:textColor="@color/primaryTextColor"
                 android:gravity="center"
                 android:layout_margin="2dp"
                 android:background="@color/primaryColor"/>
@@ -124,6 +135,10 @@
                 android:layout_height="32dp"
                 android:layout_weight="1"
                 android:text="Time"
+                android:textAllCaps="true"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:textColor="@color/primaryTextColor"
                 android:gravity="center"
                 android:layout_margin="2dp"
                 android:background="@color/primaryColor"/>

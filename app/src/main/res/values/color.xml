@@ -5,5 +5,5 @@
     <color name="primaryColorLight">#bbdaf8</color>
     <color name="accentColor">#f944ff</color>
     <color name="accentColorPressed">#c32cff</color>
-    <color name="primaryTextColor">#212121</color>
+    <color name="primaryTextColor">#000000</color>
 </resources>
