@@ -1,6 +1,17 @@
 package com.armand17.runandride;
 
 
+import android.app.Activity;
+import android.widget.Chronometer;
+import android.widget.TextView;
+import android.graphics.Typeface;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.DisplayMetrics;
+import android.view.View;
+import android.widget.Button;
+
+
 import android.app.LoaderManager;
 import android.content.Loader;
 import android.database.Cursor;
@@ -9,6 +20,9 @@ import android.graphics.Color;
 import android.location.Location;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
+import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 
 import android.view.Menu;
@@ -40,6 +54,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
 import java.util.ArrayList;
+import java.util.Timer;
+
 import com.facebook.FacebookSdk;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -51,16 +67,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         LocationListener {
 
     private static final long INTERVAL = 1000 * 5; //5dtk
-    private static final long FASTEST_INTERVAL = 1000 * 3; //3dtk
+    private static final long FASTEST_INTERVAL = 1000; //1dtk
+    private static final long SMALLEST_DISPLACEMENT = 0; //in meter
 
     private GoogleMap googleMap; // Might be null if Google Play services APK is not available.
     private GoogleApiClient googleApiClient;
     private Location mLocation;
     private LocationRequest mLocationRequest;
     private boolean statusSesi;
-    double lat, lng;
-    long time;
-    double newlat,newlng;
     Marker mMarker;
     Marker startMarker, endMarker;
     LatLng loc, startLoc;
@@ -75,8 +89,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     TextView textTime;
     TextView textCallories;
     TextView array_loc;
+    double lat, lng;
+    long time, startTime, endTime, timeInMiliS;
+    long secs, mins, hrs;
     String session_type;
     String newpoint;
+    String seconds, minutes, hours, milliseconds;
+    float jarak, jarakS;
+
+    Handler customHandler = new Handler();
 
 
     @Override
@@ -84,7 +105,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
         statusSesi = false;
-
+        time = 0;
+        startTime = 0;
+        endTime = 0;
+        timeInMiliS = 0;
         if (!isGooglePlayServiceAvailable()){
             finish();
         }
@@ -92,15 +116,16 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_main);
 
         //inisialisasi UI
+        point = new ArrayList<LatLng>();
+//        startTime = new System.currentTimeMillis();
+
         btnStart = (ToggleButton) findViewById(R.id.btnStart);
         btnExcercise = (Button) findViewById(R.id.btnKegiatan);
-        point = new ArrayList<LatLng>();
-
-
         textDistance = (TextView) findViewById(R.id.textDistance);
-        textTime = (TextView) findViewById(R.id.time);
+        textTime = (TextView) findViewById(R.id.textTime);
         textCallories = (TextView) findViewById(R.id.textCallories);
         array_loc = (TextView)findViewById(R.id.array_loc);
+
 
         // Try to obtain the map from the SupportMapFragment.
         SupportMapFragment mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
@@ -113,6 +138,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 .build();
 
         googleApiClient.connect();
+
 
         //Action UI button
         btnExcercise.setOnClickListener(new View.OnClickListener() {
@@ -136,9 +162,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         btnStart.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked)
+                if (isChecked){
                     startSession();
-                else stopSession();
+                    startTime = System.currentTimeMillis();
+                    customHandler.removeCallbacks(runTimer);
+                    customHandler.postDelayed(runTimer, 100);
+                } else stopSession();
             }
         });
 
@@ -158,11 +187,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public void startSession() {
         googleMap.clear();
         point.clear();
+        jarak = 0;
 
         startLocationUpdate();
-//        time = System.currentTimeMillis()/1000;
-//        String timeString = time.toString();
-//        textTime.setText(""+time);
+        time = System.currentTimeMillis()/1000;
+//        String timeString = ((String) time);
+        textTime.setText(""+time);
         statusSesi = true;
     }
 
@@ -172,6 +202,70 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
+    private Runnable runTimer = new Runnable() {
+        @Override
+        public void run() {
+            timeInMiliS = System.currentTimeMillis() - startTime;
+            customHandler.postDelayed(this,100);
+            timeFormatter(timeInMiliS);
+
+//            int secs = (int) (timeInMiliS / 1000);
+//            int mins = (int) secs/60;
+//            secs = secs%60;
+//            int miliSeconds = (int) (timeInMiliS % 1000);
+//            textTime.setText("" + mins+" Min");
+        }
+    };
+
+    private void timeFormatter (float time){
+        secs = (long) (time/1000);
+        mins = (long) ((time/1000)/60);
+        hrs = (long) (((time/1000)/60)/60);
+
+        secs = secs%60;
+        seconds = String.valueOf(secs);
+        if(secs == 0){
+            seconds = "00";
+        }
+        if(secs <10 && secs > 0){
+            seconds = "0"+seconds;
+        }
+
+//		 Convert the minutes to String and format the String
+
+        mins = mins % 60;
+        minutes=String.valueOf(mins);
+        if(mins == 0){
+            minutes = "00";
+        }
+        if(mins <10 && mins > 0){
+            minutes = "0"+minutes;
+        }
+
+    	/* Convert the hours to String and format the String */
+
+        hours=String.valueOf(hrs);
+        if(hrs == 0){
+            hours = "00";
+        }
+        if(hrs <10 && hrs > 0){
+            hours = "0"+hours;
+        }
+
+    	/* Although we are not using milliseconds on the timer in this example
+    	 * I included the code in the event that you wanted to include it on your own
+*/
+        milliseconds = String.valueOf((long)time);
+        if(milliseconds.length()==2){
+            milliseconds = "0"+milliseconds;
+        }
+        if(milliseconds.length()<=1){
+            milliseconds = "00";
+        }
+        milliseconds = milliseconds.substring(milliseconds.length()-3, milliseconds.length()-2);
+
+        textTime.setText(hours+":"+minutes+":"+seconds);//+"."+milliseconds);
+    }
 
 
     protected void startLocationUpdate() {
@@ -192,7 +286,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mLocationRequest.setInterval(INTERVAL);
         mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setSmallestDisplacement(0);
+        mLocationRequest.setSmallestDisplacement(SMALLEST_DISPLACEMENT);
     }
 
 
@@ -222,6 +316,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         super.onPause();
         if (googleApiClient.isConnected()) {
             startLocationUpdate();
+            statusSesi = true;
         }
     }
 
@@ -282,14 +377,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
                 Toast.makeText(this, "Lokasi kamu saat ini :')", Toast.LENGTH_LONG).show();
             }
-        } else{
-            if (googleMap != null) {
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()), 13));
-                lat = mLocation.getLatitude();
-                lng = mLocation.getLongitude();
-
-                Toast.makeText(this, "Lokasi kamu saat ini ')", Toast.LENGTH_LONG).show();
-            }
+//        } else{
+//            if (googleMap != null) {
+//                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()), 13));
+//                lat = mLocation.getLatitude();
+//                lng = mLocation.getLongitude();
+//
+//                Toast.makeText(this, "Lokasi kamu saat ini ')", Toast.LENGTH_LONG).show();
+//            }
         }
 
     }
@@ -332,9 +427,38 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             endMarker = googleMap.addMarker(new MarkerOptions().position(loc).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
         }
 
+        if (point.size()>=2){
+            jarakS =0;
+            LatLng start = point.get(point.size()-2);
+            LatLng end = point.get(point.size()-1);
 
-        array_loc.setText("Session: " + session_type + "\nLocation " + point);
-        title.setText("Lat = " + loc.latitude + " Long = " +loc.longitude);
+            jarakS = getDistance(start, end);
+
+            jarak += jarakS;
+        }
+
+        String jarakString = jarak + " m";
+
+        if (jarak > 1000.0f){
+            jarak = jarak/1000.0f;
+            jarakString = jarak + " KM";
+        }
+
+        endTime = System.currentTimeMillis();
+        if (endTime > startTime){
+            time = endTime - startTime;
+        }
+
+// array_loc is debugger to monitoring all activities.
+// until the development is done,
+// we can see all activities happend right there.
+        array_loc.setText("Session: " + session_type +
+                "\n point: "+point.size()+
+                "\nLocation " + point);
+        title.setText("Lat = " + loc.latitude +
+                " Long = " +loc.longitude);
+
+        textDistance.setText(""+jarakString);
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(loc));
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(17.0f));
 
@@ -374,12 +498,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         lo2.setLongitude(endPoint.longitude);
 
         float distance = lo.distanceTo(lo2);
-//        String dist = distance + " m";
-//
-//        if (distance > 1000.0f){
-//            distance = distance/1000.0f;
-//            dist = distance + " KM";
-//        }
 
         return distance;
     }

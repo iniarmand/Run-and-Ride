@@ -25,27 +25,23 @@ public class LocalDBHandler extends SQLiteOpenHelper {
      * Field 1 of the table locations, which is the primary key
      */
     public static final String FIELD_ROW_ID = "id";
-
     public static final String FIELD_USER_ID = "user_id";
 
     /**
-     * Field 2 of the table locations, stores the latitude
+     * Field 2 of the table locations, stores the latitude and longitude
      */
     public static final String FIELD_LAT = "lat";
-
-    /**
-     * Field 3 of the table locations, stores the longitude
-     */
     public static final String FIELD_LNG = "lng";
 
     /**
-     * Field 4 of the table locations, stores the zoom level of map
+     * Field of the table locations, stores the zoom level of map, time , distance and burned callories
      */
     public static final String FIELD_ZOOM = "zoom";
-
     public static final String FIELD_TIME = "time";
-
     public static final String FIELD_SESSION_NAME = "session";
+    public static final String FIELD_SESSION_TIME = "session_time";
+    public static final String FIELD_DISTANCE = "distance";
+    public static final String FIELD_CALLORIES = "call";
 
     /**
      * A constant, stores the the table name
@@ -56,7 +52,6 @@ public class LocalDBHandler extends SQLiteOpenHelper {
      * An instance variable for SQLiteDatabase
      */
     private SQLiteDatabase mDB;
-
 
     public LocalDBHandler(Context context) {
         super(context, DBNAME, null, VERSION);
@@ -70,9 +65,11 @@ public class LocalDBHandler extends SQLiteOpenHelper {
                 FIELD_USER_ID + " integer , " +
                 FIELD_LAT + " double , " +
                 FIELD_LNG + " double , " +
-                FIELD_ZOOM + " text , " +
-                FIELD_TIME + " datetime , " +
-                FIELD_SESSION_NAME + " text " +
+                FIELD_ZOOM + " float , " +
+                FIELD_TIME + " double , " +
+                FIELD_SESSION_NAME + " text , " +
+                FIELD_SESSION_TIME + " datetime , " +
+                FIELD_CALLORIES + " float " +
                 " ) ";
         db.execSQL(sql);
     }
@@ -91,7 +88,7 @@ public class LocalDBHandler extends SQLiteOpenHelper {
     }
 
     public Cursor getAllLocations() {
-        return mDB.query(DATABASE_TABLE, new String[]{FIELD_ROW_ID, FIELD_LAT, FIELD_LNG, FIELD_ZOOM, FIELD_TIME, FIELD_SESSION_NAME}, null, null, null, null, null);
+        return mDB.query(DATABASE_TABLE, new String[]{FIELD_ROW_ID, FIELD_LAT, FIELD_LNG, FIELD_ZOOM, FIELD_TIME, FIELD_SESSION_NAME, FIELD_SESSION_TIME,FIELD_DISTANCE}, null, null, null, null, null, null);
 
     }
 
