@@ -22,20 +22,12 @@ public class LocalDBHandler extends SQLiteOpenHelper {
     private static int VERSION = 1;
 
     /**
-     * Field 1 of the table locations, which is the primary key
+     * Field of the table locations, which is the primary key
      */
     public static final String FIELD_ROW_ID = "id";
     public static final String FIELD_USER_ID = "user_id";
-
-    /**
-     * Field 2 of the table locations, stores the latitude and longitude
-     */
     public static final String FIELD_LAT = "lat";
     public static final String FIELD_LNG = "lng";
-
-    /**
-     * Field of the table locations, stores the zoom level of map, time , distance and burned callories
-     */
     public static final String FIELD_ZOOM = "zoom";
     public static final String FIELD_TIME = "time";
     public static final String FIELD_SESSION_NAME = "session";

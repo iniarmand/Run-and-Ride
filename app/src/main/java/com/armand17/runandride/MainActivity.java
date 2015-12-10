@@ -2,6 +2,8 @@ package com.armand17.runandride;
 
 
 import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Intent;
 import android.widget.Chronometer;
 import android.widget.TextView;
 import android.graphics.Typeface;
@@ -37,6 +39,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.armand17.runandride.DBHandler.LocalDBHandler;
+import com.armand17.runandride.helper.TimeFormatter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -82,6 +86,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     static final LatLng XT_SQUARE = new LatLng(-7.816706, 110.386314);
     ArrayList<String> record;
     ArrayList<LatLng> point;
+//    LatLng[] point;
     protected String mLastUpdateTime;
     ToggleButton btnStart;
     Button btnExcercise;
@@ -117,7 +122,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         //inisialisasi UI
         point = new ArrayList<LatLng>();
-//        startTime = new System.currentTimeMillis();
 
         btnStart = (ToggleButton) findViewById(R.id.btnStart);
         btnExcercise = (Button) findViewById(R.id.btnKegiatan);
@@ -191,14 +195,22 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         startLocationUpdate();
         time = System.currentTimeMillis()/1000;
-//        String timeString = ((String) time);
-        textTime.setText(""+time);
         statusSesi = true;
     }
 
     private void stopSession() {
         statusSesi = false;
         stopLocationUpdate();
+
+        Bundle args = new Bundle();
+//        args.putParcelableArray("arrayLoc",point);
+
+        Intent data = new Intent(this,SaveSession.class);
+        data.putExtra("session",session_type);
+        data.putExtra("jarak",jarak);
+        data.putExtra("time",time);
+//        data.putExtra("arrayLoc",array_loc);
+        startActivity(data);
     }
 
 
@@ -206,66 +218,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         public void run() {
             timeInMiliS = System.currentTimeMillis() - startTime;
-            customHandler.postDelayed(this,100);
-            timeFormatter(timeInMiliS);
+            customHandler.postDelayed(this, 100);
 
-//            int secs = (int) (timeInMiliS / 1000);
-//            int mins = (int) secs/60;
-//            secs = secs%60;
-//            int miliSeconds = (int) (timeInMiliS % 1000);
-//            textTime.setText("" + mins+" Min");
+            String formattedTime = TimeFormatter.timeFormatter(timeInMiliS);
+            textTime.setText("" + formattedTime);
         }
     };
-
-    private void timeFormatter (float time){
-        secs = (long) (time/1000);
-        mins = (long) ((time/1000)/60);
-        hrs = (long) (((time/1000)/60)/60);
-
-        secs = secs%60;
-        seconds = String.valueOf(secs);
-        if(secs == 0){
-            seconds = "00";
-        }
-        if(secs <10 && secs > 0){
-            seconds = "0"+seconds;
-        }
-
-//		 Convert the minutes to String and format the String
-
-        mins = mins % 60;
-        minutes=String.valueOf(mins);
-        if(mins == 0){
-            minutes = "00";
-        }
-        if(mins <10 && mins > 0){
-            minutes = "0"+minutes;
-        }
-
-    	/* Convert the hours to String and format the String */
-
-        hours=String.valueOf(hrs);
-        if(hrs == 0){
-            hours = "00";
-        }
-        if(hrs <10 && hrs > 0){
-            hours = "0"+hours;
-        }
-
-    	/* Although we are not using milliseconds on the timer in this example
-    	 * I included the code in the event that you wanted to include it on your own
-*/
-        milliseconds = String.valueOf((long)time);
-        if(milliseconds.length()==2){
-            milliseconds = "0"+milliseconds;
-        }
-        if(milliseconds.length()<=1){
-            milliseconds = "00";
-        }
-        milliseconds = milliseconds.substring(milliseconds.length()-3, milliseconds.length()-2);
-
-        textTime.setText(hours+":"+minutes+":"+seconds);//+"."+milliseconds);
-    }
 
 
     protected void startLocationUpdate() {
@@ -377,16 +335,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
                 Toast.makeText(this, "Lokasi kamu saat ini :')", Toast.LENGTH_LONG).show();
             }
-//        } else{
-//            if (googleMap != null) {
-//                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()), 13));
-//                lat = mLocation.getLatitude();
-//                lng = mLocation.getLongitude();
-//
-//                Toast.makeText(this, "Lokasi kamu saat ini ')", Toast.LENGTH_LONG).show();
-//            }
         }
-
     }
 
     @Override
@@ -422,9 +371,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         googleMap.addPolyline(polylineOptions);
         startLoc = point.get(0);
         if (point.size() == 1){
-            startMarker = googleMap.addMarker(new MarkerOptions().position(startLoc).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+            startMarker = googleMap.addMarker(new MarkerOptions().
+                    position(startLoc).
+                    icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
         } else {
-            endMarker = googleMap.addMarker(new MarkerOptions().position(loc).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+            endMarker = googleMap.addMarker(new MarkerOptions().
+                    position(loc).
+                    icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
         }
 
         if (point.size()>=2){
@@ -457,6 +410,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 "\nLocation " + point);
         title.setText("Lat = " + loc.latitude +
                 " Long = " +loc.longitude);
+
+
 
         textDistance.setText(""+jarakString);
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(loc));
