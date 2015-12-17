@@ -136,6 +136,13 @@
                             android:gravity="center_horizontal"
                             android:layout_marginBottom="5dp"/>
 
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/arrayPoint"
+                            android:background="@color/primaryColorLight"/>
+
                     </LinearLayout>
 
                 </ScrollView>
@@ -148,7 +155,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="2"
-                    tools:context="com.armand17.runandride.MainActivityActivity"
+                    tools:context="com.armand17.runandride.SaveSession"
                     tools:layout="@layout/abc_action_bar_title_item"/>
             </LinearLayout>
 

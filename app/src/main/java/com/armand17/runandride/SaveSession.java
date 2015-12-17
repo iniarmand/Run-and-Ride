@@ -10,16 +10,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.armand17.runandride.helper.TimeFormatter;
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.ArrayList;
 
 public class SaveSession extends FragmentActivity {
 
-    TextView textNamaSesi,textJarak,textTime,textSpeed,textHeartRate,textKalori;
+    TextView textNamaSesi,textJarak,textTime,
+            textSpeed,textHeartRate,textKalori, textArrayPoint;
     EditText Judul,Ket;
     Button BtnShare, BtnSave, BtnCancel;
     int speed;
-    String namaSesi;
+    String namaSesi, stringPoint;
     float dataJarak, heartRate, callorie;
     long dataTime;
+    ArrayList<LatLng> arrayPoint;
 
 
     @Override
@@ -38,14 +43,24 @@ public class SaveSession extends FragmentActivity {
         textHeartRate = (TextView) findViewById(R.id.saveHeart);
         textSpeed = (TextView) findViewById(R.id.saveSpeed);
         textKalori = (TextView) findViewById(R.id.saveCalories);
+        textArrayPoint = (TextView)findViewById(R.id.arrayPoint);
 
         Judul = (EditText) findViewById(R.id.saveJudul);
         Ket = (EditText) findViewById(R.id.saveKet);
 
+//        Getting Array point location from prev activity
+//        Bundle rcPoint = getIntent().getExtras();
+//        arrayPoint = rcPoint.getParcelableArrayList("arrayPoint");
+
+//      Getting normal data from prev activity
         Intent data = getIntent();
         namaSesi = data.getStringExtra("session");
         dataJarak = data.getFloatExtra("jarak", 0000);
         dataTime = data.getLongExtra("time", 0000);
+        arrayPoint = (ArrayList<LatLng>) data.getSerializableExtra("arrayPoint");
+
+        stringPoint = arrayPoint.toString();
+
 
         String formattedTime;
         formattedTime = TimeFormatter.timeFormatter(dataTime);
@@ -59,6 +74,7 @@ public class SaveSession extends FragmentActivity {
         textTime.setText(formattedTime);
         textSpeed.setText(""+speed);
         textHeartRate.setText(""+heartRate);
+        textArrayPoint.setText(""+stringPoint);
 
         BtnSave.setOnClickListener(new View.OnClickListener() {
             @Override

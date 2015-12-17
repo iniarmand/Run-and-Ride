@@ -86,7 +86,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     static final LatLng XT_SQUARE = new LatLng(-7.816706, 110.386314);
     ArrayList<String> record;
     ArrayList<LatLng> point;
-//    LatLng[] point;
     protected String mLastUpdateTime;
     ToggleButton btnStart;
     Button btnExcercise;
@@ -202,14 +201,23 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         statusSesi = false;
         stopLocationUpdate();
 
-        Bundle args = new Bundle();
-//        args.putParcelableArray("arrayLoc",point);
+//        Bundle arrayPoint = new Bundle();
+//        arrayPoint.putParcelableArrayList("arrayPoint",point);
+
+
+//        Intent dataLokasi = new Intent(this,SaveSession.class);
+//        dataLokasi.putParcelableArrayListExtra("arrayPoint",arrayPoint);
+
+
 
         Intent data = new Intent(this,SaveSession.class);
         data.putExtra("session",session_type);
         data.putExtra("jarak",jarak);
         data.putExtra("time",time);
-//        data.putExtra("arrayLoc",array_loc);
+        data.putExtra("arrayPoint",point);
+
+
+
         startActivity(data);
     }
 
