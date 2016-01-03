@@ -5,40 +5,51 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.Contacts;
+
+import java.util.List;
 
 /**
  * Created by armand17 on 06/10/15.
  */
 public class LocalDBHandler extends SQLiteOpenHelper {
 
-    /**
-     * Database name
-     */
+    //  Version number of the database
+    private static int VERSION = 1;
+    //     Database name
+
     private static String DBNAME = "DatabaseTracking";
 
-    /**
-     * Version number of the database
-     */
-    private static int VERSION = 1;
+    // the table name
+    public static final String DATABASE_TABLE = "run_and_ride";
 
-    /**
-     * Field of the table locations, which is the primary key
-     */
+    // Columns names
+
     public static final String FIELD_ROW_ID = "id";
-    public static final String FIELD_USER_ID = "user_id";
-    public static final String FIELD_LAT = "lat";
-    public static final String FIELD_LNG = "lng";
-    public static final String FIELD_ZOOM = "zoom";
-    public static final String FIELD_TIME = "time";
-    public static final String FIELD_SESSION_NAME = "session";
+    public static final String FIELD_SESSION_TYPE = "session_type";
+    public static final String FIELD_SESSION_NAME = "name";
+    public static final String FIELD_SESSION_DESC = "session_desc";
     public static final String FIELD_SESSION_TIME = "session_time";
+    public static final String FIELD_ELAPSED_TIME = "elapsed_time";
+    public static final String FIELD_ARRAYPOINT = "array_point";
     public static final String FIELD_DISTANCE = "distance";
+    public static final String FIELD_SPEED = "speed";
+    public static final String FIELD_HEART_RATE = "heart_rate";
     public static final String FIELD_CALLORIES = "call";
 
-    /**
-     * A constant, stores the the table name
-     */
-    private static final String DATABASE_TABLE = "tracking";
+    private static String CreateTableRunAndRide = "create table " + DATABASE_TABLE + " ( " +
+            FIELD_ROW_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+            FIELD_SESSION_TYPE + " TEXT," +
+            FIELD_SESSION_NAME + " TEXT," +
+            FIELD_SESSION_DESC + " TEXT," +
+            FIELD_SESSION_TIME + " TEXT," +
+            FIELD_ELAPSED_TIME + " REAL," +
+            FIELD_ARRAYPOINT +" TEXT,"+
+            FIELD_DISTANCE + " REAL," +
+            FIELD_SPEED + " REAL," +
+            FIELD_HEART_RATE + " INTEGER," +
+            FIELD_CALLORIES + " REAL" +
+            " ) ";
 
     /**
      * An instance variable for SQLiteDatabase
@@ -52,37 +63,47 @@ public class LocalDBHandler extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String sql = "create table " + DATABASE_TABLE + " ( " +
-                FIELD_ROW_ID + "integer primary key autoincrement , " +
-                FIELD_USER_ID + " integer , " +
-                FIELD_LAT + " double , " +
-                FIELD_LNG + " double , " +
-                FIELD_ZOOM + " float , " +
-                FIELD_TIME + " double , " +
-                FIELD_SESSION_NAME + " text , " +
-                FIELD_SESSION_TIME + " datetime , " +
-                FIELD_CALLORIES + " float " +
-                " ) ";
-        db.execSQL(sql);
+        db.execSQL(CreateTableRunAndRide);
     }
 
-    /**
-     * insert new point location
-     */
+    // Menambahkan data ke dalam tabel
     public long insert(ContentValues contentValues) {
-        long rowID = mDB.insert(DATABASE_TABLE, null, contentValues);
+        long rowID;
+        rowID = mDB.insert(DATABASE_TABLE, null, contentValues);
         return rowID;
     }
 
-    public int del() {
-        int cnt = mDB.delete(DATABASE_TABLE, null, null);
-        return cnt;
+    // Delete All data atau Reset Data
+    public int reset() {
+        int reset;
+        reset = mDB.delete(DATABASE_TABLE, null, null);
+        return reset;
     }
 
-    public Cursor getAllLocations() {
-        return mDB.query(DATABASE_TABLE, new String[]{FIELD_ROW_ID, FIELD_LAT, FIELD_LNG, FIELD_ZOOM, FIELD_TIME, FIELD_SESSION_NAME, FIELD_SESSION_TIME,FIELD_DISTANCE}, null, null, null, null, null, null);
-
+    // Membaca semua data yang ada di dalam tabel
+    public Cursor getAllData() {
+        return mDB.query(DATABASE_TABLE, new String[]{FIELD_ROW_ID,
+                FIELD_SESSION_TYPE,
+                FIELD_SESSION_NAME,
+                FIELD_SESSION_DESC,
+                FIELD_SESSION_TIME,
+                FIELD_ELAPSED_TIME,
+                FIELD_ARRAYPOINT,
+                FIELD_DISTANCE,
+                FIELD_SPEED,
+                FIELD_HEART_RATE,
+                FIELD_CALLORIES}, null, null, null, null, null, null);
     }
+
+   // public List<String>
+
+    // Membaca data yang di pilih
+
+
+
+    // Menghapus data terpilih
+
+
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

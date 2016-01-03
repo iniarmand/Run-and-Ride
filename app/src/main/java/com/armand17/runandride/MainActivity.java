@@ -201,21 +201,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         statusSesi = false;
         stopLocationUpdate();
 
-//        Bundle arrayPoint = new Bundle();
-//        arrayPoint.putParcelableArrayList("arrayPoint",point);
-
-
-//        Intent dataLokasi = new Intent(this,SaveSession.class);
-//        dataLokasi.putParcelableArrayListExtra("arrayPoint",arrayPoint);
-
-
-
         Intent data = new Intent(this,SaveSession.class);
         data.putExtra("session",session_type);
         data.putExtra("jarak",jarak);
-        data.putExtra("time",time);
+        data.putExtra("timeElapsed",time);
         data.putExtra("arrayPoint",point);
-
 
 
         startActivity(data);
@@ -341,7 +331,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 lat = mLocation.getLatitude();
                 lng = mLocation.getLongitude();
 
-                Toast.makeText(this, "Lokasi kamu saat ini :')", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Lokasi kamu saat ini ", Toast.LENGTH_LONG).show();
             }
         }
     }

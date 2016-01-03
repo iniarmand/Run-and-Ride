@@ -44,6 +44,25 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:text="Waktu"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:paddingLeft="5dp"
+                            android:background="#9dbace"
+                            android:layout_marginBottom="2dp"/>
+
+                        <TextView
+                            android:id="@+id/saveTime"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="jarak in M/KM"
+                            android:background="@color/primaryColorLight"
+                            android:gravity="center_horizontal"
+                            android:layout_marginBottom="5dp"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
                             android:text="Jarak"
                             android:textSize="14sp"
                             android:textStyle="bold"
@@ -63,7 +82,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Waktu"
+                            android:text="Waktu Tempuh"
                             android:textSize="14sp"
                             android:textStyle="bold"
                             android:paddingLeft="5dp"
@@ -71,7 +90,7 @@
                             android:layout_marginBottom="2dp"/>
 
                         <TextView
-                            android:id="@+id/saveTime"
+                            android:id="@+id/saveTimeElapsed"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Waktu"
