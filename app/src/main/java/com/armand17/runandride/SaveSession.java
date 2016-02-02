@@ -62,6 +62,7 @@ public class SaveSession extends FragmentActivity {
 //        arrayPoint = rcPoint.getParcelableArrayList("arrayPoint");
 
 //      Getting normal data from prev activity
+        // we have make change on this comment
         Intent data = getIntent();
         sessionType = data.getStringExtra("session");
         dataJarak = data.getFloatExtra("jarak", 0);
@@ -103,7 +104,7 @@ public class SaveSession extends FragmentActivity {
 
                 PrepareToSave();
 
-                Toast.makeText(SaveSession.this, "You Click Save Button", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(SaveSession.this, "You Click Save Button", Toast.LENGTH_SHORT).show();
 
             }
         });
