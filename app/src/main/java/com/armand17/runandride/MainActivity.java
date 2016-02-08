@@ -4,6 +4,8 @@ package com.armand17.runandride;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.widget.Chronometer;
 import android.widget.TextView;
 import android.graphics.Typeface;
@@ -40,6 +42,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.armand17.runandride.DBHandler.LocalDBHandler;
+import com.armand17.runandride.helper.GetDistance;
 import com.armand17.runandride.helper.TimeFormatter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -57,7 +60,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 
 import com.facebook.FacebookSdk;
@@ -70,7 +76,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         LoaderManager.LoaderCallbacks<Cursor>,
         LocationListener {
 
-    private static final long INTERVAL = 1000 * 5; //5dtk
+    private static final long INTERVAL = 1000 * 2; //2dtk
     private static final long FASTEST_INTERVAL = 1000; //1dtk
     private static final long SMALLEST_DISPLACEMENT = 0; //in meter
 
@@ -97,7 +103,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     long time, startTime, endTime, timeInMiliS;
     long secs, mins, hrs;
     String session_type;
-    String newpoint;
+    String newpoint,addressString;
     String seconds, minutes, hours, milliseconds;
     float jarak, jarakS;
 
@@ -383,7 +389,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             LatLng start = point.get(point.size()-2);
             LatLng end = point.get(point.size()-1);
 
-            jarakS = getDistance(start, end);
+            jarakS = GetDistance.getDistance(start,end);
 
             jarak += jarakS;
         }
@@ -406,14 +412,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         array_loc.setText("Session: " + session_type +
                 "\n point: "+point.size()+
                 "\nLocation " + point);
-        title.setText("Lat = " + loc.latitude +
-                " Long = " +loc.longitude);
 
+        Update(lat,lng);
+        title.setText("" + addressString );
 
 
         textDistance.setText(""+jarakString);
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(loc));
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(17.0f));
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(15.0f));
 
 
     }
@@ -441,18 +447,25 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         return super.onOptionsItemSelected(item);
     }
 
-    private float getDistance(LatLng startPoint, LatLng endPoint) {
-        Location lo = new  Location("one");
-        lo.setLatitude(startPoint.latitude);
-        lo.setLongitude(startPoint.longitude);
 
-        Location lo2 = new Location("two");
-        lo2.setLatitude(endPoint.latitude);
-        lo2.setLongitude(endPoint.longitude);
+    private String Update (double latitude, double longitude){
 
-        float distance = lo.distanceTo(lo2);
+        StringBuilder sb = new StringBuilder();
+        Geocoder gc = new Geocoder(this, Locale.getDefault());
 
-        return distance;
+        try{
+            List<Address> addressList = gc.getFromLocation(lat,lng,1);
+            if (addressList.size()>0){
+                Address address = addressList.get(0);
+                for (int i = 0; i <address.getMaxAddressLineIndex(); i++)
+                sb.append(address.getAddressLine(i)).append(" ");
+//                sb.append(address.getLocality());
+            }
+            addressString = sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return addressString;
     }
 
 

@@ -12,8 +12,13 @@
         android:textStyle="bold"
         android:textAppearance="@style/WalletFragmentDefaultStyle"/>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/alldata"/>
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/list"/>
+        android:id="@+id/recordList"/>
 </LinearLayout>

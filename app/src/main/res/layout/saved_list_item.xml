@@ -25,19 +25,35 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/timeList"
-                android:layout_width="match_parent"
+                android:id="@+id/tittleList"
+                android:text="Judulnya panjang sekali lhoo"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tanggal"
-                android:textSize="18sp"
+                android:textSize="16sp"
+                android:textStyle="italic|bold"
+                android:maxLength="25"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"/>
 
             <TextView
-                android:id="@+id/jarakList"
+                android:id="@+id/dateList"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Jarak"
+                android:text="Januari 21st"
+                android:textSize="18sp"
+                android:layout_alignParentTop="true"
+                android:textColor="#ff5d5d"
+                android:layout_alignParentRight="true"/>
+
+            <TextView
+                android:id="@+id/distanceList"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Jarak in M or KM"
                 android:textSize="14sp"
+                android:textStyle="italic"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"/>
 
@@ -45,8 +61,10 @@
                 android:id="@+id/callorieList"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Calories"
+                android:text="Calories in kKall"
                 android:textSize="14sp"
+                android:textColor="#f5502b"
+                android:textStyle="bold"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
                 android:layout_marginLeft="2dp"/>

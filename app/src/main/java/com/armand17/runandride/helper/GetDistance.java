@@ -11,13 +11,19 @@ public class GetDistance {
 
     private Location startPoint;
     private Location endPoint;
-    float distance;
+    private static float distance;
 
-    public float GetDistance(Location startPoint, Location endPoint) {
+    public static float getDistance(LatLng startPoint, LatLng endPoint) {
+        Location lo = new  Location("one");
+        lo.setLatitude(startPoint.latitude);
+        lo.setLongitude(startPoint.longitude);
 
-        this.startPoint = startPoint;
-        this.endPoint = endPoint;
-        distance = startPoint.distanceTo(endPoint);
+        Location lo2 = new Location("two");
+        lo2.setLatitude(endPoint.latitude);
+        lo2.setLongitude(endPoint.longitude);
+
+        distance = lo.distanceTo(lo2);
+
         return distance;
     }
 
